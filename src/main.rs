@@ -1,15 +1,21 @@
-use product_config::v1::ProductConfig;
+use product_config::v2::{ProductConfig, Tls};
 
 mod product_config;
 
 struct RgConfig {
     cluster_name: String,
+    tls: bool,
 }
 
-fn reconciler_logic_stuff(RgConfig { cluster_name }: RgConfig) -> ProductConfig {
+fn reconciler_logic_stuff(RgConfig { cluster_name, tls }: RgConfig) -> ProductConfig {
     ProductConfig {
         cluster_url: format!("http://{cluster_name}.default.svc.cluster.local/"),
         cluster_name,
+        tls: tls.then(|| Tls {
+            key_file: "/stackable/tls/key.pem".to_string(),
+            cert_file: "/stackable/tls/cert.pem".to_string(),
+            ca_file: "/stackable/tls/ca.pem".to_string(),
+        }),
     }
 }
 
@@ -18,6 +24,7 @@ fn main() {
     // this would likely use fragment infra in practice, here we assume that this is already done
     let rg = RgConfig {
         cluster_name: "foo".to_string(),
+        tls: false,
     };
     let product_config = reconciler_logic_stuff(rg);
     // in practice we'd split this for config files/env/args as before here
