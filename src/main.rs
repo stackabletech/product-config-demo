@@ -1,7 +1,10 @@
 use clap::Parser;
-use product_config::v2::{ProductConfig, Tls};
+use product_config::v3::{ProductConfig, Tls};
 
-use crate::{product_config::v1, versioning::Versioner};
+use crate::{
+    product_config::{v1, v2},
+    versioning::Versioner,
+};
 
 mod product_config;
 mod versioning;
@@ -13,7 +16,7 @@ struct RgConfig {
 
 fn reconciler_logic_stuff(RgConfig { cluster_name, tls }: RgConfig) -> ProductConfig {
     ProductConfig {
-        cluster_url: format!("http://{cluster_name}.default.svc.cluster.local/"),
+        insecure_cluster_url: format!("http://{cluster_name}.default.svc.cluster.local/"),
         cluster_name,
         tls: tls.then(|| Tls {
             key_file: "/stackable/tls/key.pem".to_string(),
@@ -32,7 +35,9 @@ struct Opts {
 
 fn main() {
     let opts = Opts::parse();
-    let versioner = Versioner::<ProductConfig>::new().with_old_version::<v1::ProductConfig>();
+    let versioner = Versioner::<ProductConfig>::new()
+        .with_old_version::<v2::ProductConfig>()
+        .with_old_version::<v1::ProductConfig>();
 
     // merged rolegroup config
     // this would likely use fragment infra in practice, here we assume that this is already done
