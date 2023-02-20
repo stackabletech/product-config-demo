@@ -1,0 +1,41 @@
+# Product Config Next Gen
+
+## Purpose
+
+This is a really really tiny repo that I created during my lunch break to play around with an idea regarding the product config that I had in a meeting earlier triggered by something that @vsupalov said.
+
+It basically just shows a possible way of tracking how config settings evolved during the reconciliation loop of an operator and allows outputting this to the final config file.
+
+## Example
+
+- setting 1
+  - starts out as the default value
+  - is overridden by the operator during reconciliation.
+- setting 2
+  - starts out as the default value
+- setting 3
+  - does not have a default
+  - is set by the operator during reconciliation
+  - is overridden by the user in the CR object
+- setting 4
+  - does not have a default
+  - is set by the operator during reconciliation
+
+This generates the following output:
+
+[source,properties]
+----
+# NOTE: [setting3] has been defined multiple times during generation of the config, please review for potential conflicts!
+# Value: [4], Reason: Best practices says to not have this higher than 4
+# Value: [20], Reason: Overridden by user in rolegroup settings.
+setting3: 20
+
+# NOTE: [setting1] has been defined multiple times during generation of the config, please review for potential conflicts!
+# Value: [insecure], Reason: Default value from product config applied.
+# Value: [secure], Reason: Needed because CRD contained TLS config.
+setting1: secure
+
+setting2: 124
+
+setting4: 10
+----
