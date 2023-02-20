@@ -9,17 +9,17 @@ It basically just shows a possible way of tracking how config settings evolved d
 ## Example
 
 * setting 1
-  * starts out as the default value
-  * is overridden by the operator during reconciliation.
+** starts out as the default value
+** is overridden by the operator during reconciliation.
 * setting 2
-  * starts out as the default value
+** starts out as the default value
 * setting 3
-  * does not have a default
-  * is set by the operator during reconciliation
-  * is overridden by the user in the CR object
+** does not have a default
+** is set by the operator during reconciliation
+** is overridden by the user in the CR object
 * setting 4
-  * does not have a default
-  * is set by the operator during reconciliation
+** does not have a default
+** is set by the operator during reconciliation
 
 This generates the following output:
 
