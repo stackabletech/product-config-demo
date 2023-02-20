@@ -1,3 +1,4 @@
+use clap::Parser;
 use product_config::v2::{ProductConfig, Tls};
 
 use crate::{product_config::v1, versioning::Versioner};
@@ -22,17 +23,25 @@ fn reconciler_logic_stuff(RgConfig { cluster_name, tls }: RgConfig) -> ProductCo
     }
 }
 
+#[derive(clap::Parser)]
+struct Opts {
+    version: String,
+    #[clap(long)]
+    tls: bool,
+}
+
 fn main() {
+    let opts = Opts::parse();
     let versioner = Versioner::<ProductConfig>::new().with_old_version::<v1::ProductConfig>();
 
     // merged rolegroup config
     // this would likely use fragment infra in practice, here we assume that this is already done
     let rg = RgConfig {
         cluster_name: "foo".to_string(),
-        tls: false,
+        tls: opts.tls,
     };
     let product_config = reconciler_logic_stuff(rg);
-    let product_config = versioner.downgrade_to("v1", product_config);
+    let product_config = versioner.downgrade_to(&opts.version, product_config);
     // in practice we'd split this for config files/env/args as before here
     let product_config_json = serde_json::to_string_pretty(&product_config).unwrap();
     // apply to k8s CM...
